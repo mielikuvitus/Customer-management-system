@@ -16,99 +16,409 @@ using BusinessObjects;
 namespace Demo
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Customer management system
     /// </summary>
+    /// 
+
+    /*
+     *Suvi Helin (40325472)
+     * Main Window
+     * Includes event handlers for buttons: generate id, add customer,
+     * find, delete, list all.
+     * Has validation for textboxes
+     * Has a function for clearing the form
+     * Notices if selection is changed in combobox or in listbox
+     * 31.10.2018
+     */
+
+
     public partial class MainWindow : Window
     {
+        private int id = 0;
+
+        private int count = 10001;
+
+        private string pref = "";
+        
         private MailingList store = new MailingList();
 
         public MainWindow()
         {
+
+           
             InitializeComponent();
+
+            //combobox items
+            ComboboxPrefContact.Items.Add("email");
+            ComboboxPrefContact.Items.Add("skype");
+            ComboboxPrefContact.Items.Add("tel");
+            
+
+
         }
 
+        //if selection in combobox is changed
+
+        private void ComboboxPrefContact_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int test = ComboboxPrefContact.SelectedIndex;
+
+            if (test == 0)
+            {
+                pref = "email";
+            }
+
+            if (test == 1)
+            {
+                pref = "skype";
+            }
+
+            if (test == 2)
+            {
+                pref = "tel";
+            }
+        }
+
+
+        //this button generates an id
+        private void btnGenerateAnID_Click(object sender, RoutedEventArgs e)
+        {
+
+            //checks if the id number already exists in the list, if it does adds one to the count
+            Customer c = store.find(count);
+
+            
+            if (c == null)
+            {
+                txtBoxID.Text = Convert.ToString(count);
+                
+            }
+
+            else
+            {
+                count++;
+                txtBoxID.Text = Convert.ToString(count);
+            }
+        }
+
+        //add button adds a customer to the store list after validating the information written into the textboxes
         private void btnAdd_Click(object sender, RoutedEventArgs e)
         {
-            /* try
+
+            //Convert id to numberic
+
+            try
+            {
+                id = Convert.ToInt32(txtBoxID.Text);
+            }
+            catch
+            {
+                MessageBox.Show("ID must be a number");
+                id = 0;
+                return;
+                
+            }
+
+
+
+
+            try
 
              {
-                 //if(textBox1.Text == string.Empty || textBox2.Text == string.Empty) VALIDATION
-             }
+                //VALIDATION
+                string a = "@";
 
-             catch
-             {
+                //a First Name textbox cannot be blank
+                if (txtBoxFirstName.Text == "" || txtBoxFirstName.Text == "First name")
+                {
+                    throw new System.ArgumentException("Field cannot be blank", "FirstName");
+                }
 
-             }
-             Customer aCustomer = new Customer();
+                //a SurName textbox cannot be blank
+                if (txtBoxSurname.Text == "" || txtBoxSurname.Text == "Surname")
+                {
+                    throw new System.ArgumentException("Field cannot be blank", "SurName");
+                }
+
+                //an ID has to be between 10001 and 50000
+                if ((id <10001) || (id > 50000))
+                {
+                    throw new System.ArgumentException("ID number must be in the range 10001 to 50000", "ID");
+                    
+                }
+
+                //an Email has to contain @ sign
+                if (!txtBoxEmail.Text.Contains(a))
+                {
+                    throw new System.ArgumentException("Email should contain @ ");
+                }
+
+                //a Telephone textbox cannot be blank
+                if (txtBoxTelephone.Text == "" || txtBoxTelephone.Text == "Telephone")
+                {
+                    throw new System.ArgumentException("Field cannot be blank", "Telephone");
+                }
+
+                //a SkypeID textbox cannot be blank
+                if (txtBoxSkypeID.Text == "" || txtBoxSkypeID.Text == "Skype ID")
+                {
+                    throw new System.ArgumentException("Field cannot be blank", "Skype ID");
+                }
+
+                //one of the items in the combobox has to be chosen
+                if (pref == String.Empty)
+                {
+                    throw new System.ArgumentException("Please choose preferred contact");
+                }
+
+
+                //adding a new customer to the store list
+                Customer aCustomer = new Customer();
+                
              
-             aCustomer.ID = Convert.ToInt32(txtBoxID.Text);
-             aCustomer.FirstName = txtBoxFirstName.Text;
-             aCustomer.Surname = txtBoxSurname.Text;
-             aCustomer.Address = txtBoxAddress.Text;
-             aCustomer.
+                //count will increment only if "generate id" button has been used 
+                if (Convert.ToInt32(txtBoxID.Text) == count)
+                {
+                    count++;
+                }
 
-             store.add(aCustomer);            */
+                aCustomer.ID = Convert.ToInt32(txtBoxID.Text);
+                aCustomer.FirstName = txtBoxFirstName.Text;
+                aCustomer.SurName = txtBoxSurname.Text;
+                aCustomer.Email = txtBoxEmail.Text;
+                aCustomer.SkypeID = txtBoxSkypeID.Text;
+                aCustomer.Telephone = txtBoxTelephone.Text;
+                aCustomer.PreferredContact = pref;
+
+                store.add(aCustomer);
+                //MessageBox.Show("A new customer added! " + "\n" + txtBoxID.Text);
+
+                //adding a customer into the listbox
+                listBoxCustomers.Items.Add(aCustomer.ID.ToString() + "\t" + aCustomer.FirstName + " " + aCustomer.SurName);
+
+                //clearing the form after adding the customer
+                Clear();
+
+             }
+
+             catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+             
+            
         }
+
+         //find button takes an int and finds the customer with the equivalent int and their info from the store list
 
         private void btnFind_Click(object sender, RoutedEventArgs e)
         {
 
+            //Convert id to numberic
+
+            int id;
+
+            try
+            {
+                id = Convert.ToInt32(txtBoxID.Text);
+            }
+            catch
+            {
+                MessageBox.Show("ID must be a number");
+                id = 0;
+                return;
+
+            }
+
+
+            try
+            {
+
+                //an ID has to be between 10001 and 50000
+                if ((id < 10001) || (id > 50000))
+                {
+                    throw new System.ArgumentException("ID number must be in the range 10001 to 50000", "ID");
+
+                }
+
+                
+                Customer c = store.find(id);
+
+                //if customer not found show a messagebox
+                if (c == null)
+                {
+                    MessageBox.Show("ID not found");
+                    return;
+                }
+
+                //showing the customer info in the form
+                txtBoxFirstName.Text = c.FirstName;
+                txtBoxSurname.Text = c.SurName;
+                txtBoxEmail.Text = c.Email;
+                txtBoxSkypeID.Text = c.SkypeID;
+                txtBoxTelephone.Text = c.Telephone;
+                ComboboxPrefContact.Text = c.PreferredContact;
+                
+                
+         
+              
+                
+
+            }
+
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+
+            
+
         }
 
+        //a button for deleting a customer from the store list
         private void btnDelete_Click(object sender, RoutedEventArgs e)
         {
+            //Convert id to numberic
 
+            int id;
+
+            try
+            {
+                id = Convert.ToInt32(txtBoxID.Text);
+            }
+            catch
+            {
+                MessageBox.Show("ID must be a number");
+                id = 0;
+                return;
+
+            }
+
+
+            try
+            {
+
+                //an ID has to be between 10001 and 50000
+                if ((id < 10001) || (id > 50000))
+                {
+                    throw new System.ArgumentException("ID number must be in the range 10001 to 50000", "ID");
+
+                }
+
+
+                store.delete(id);
+                MessageBox.Show("Customer deleted");
+                listBoxCustomers.Items.Remove(listBoxCustomers.SelectedItem);
+
+                Clear();
+
+
+
+
+            }
+
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+           
         }
 
+        //clears the form
+        public void Clear()
+        {
+            txtBoxID.Text = "ID";
+            txtBoxFirstName.Text = "First Name";
+            txtBoxSurname.Text = "Surname";
+            txtBoxEmail.Text = "Email";
+            txtBoxSkypeID.Text = "Skype ID";
+            txtBoxTelephone.Text = "Telephone";
+            pref = "";
+            ComboboxPrefContact.Text = "";
+        }
+
+
+        //clears textboxes from the placeholder text when clicked
         private void txtBoxID_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxID_GotFocus;
+           
         }
 
         private void txtBoxFirstName_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxFirstName_GotFocus;
+          
         }
 
         private void txtBoxSurname_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxSurname_GotFocus;
+           
         }
 
         private void txtBoxEmail_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxEmail_GotFocus;
+          
         }
 
         private void txtBoxSkypeID_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxSkypeID_GotFocus;
+            
         }
 
         private void txtBoxTelephone_GotFocus(object sender, RoutedEventArgs e)
         {
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxTelephone_GotFocus;
+            
         }
 
-        private void txtBoxPreferredContact_GotFocus(object sender, RoutedEventArgs e)
+        // Opens a new window when List all button is clicked
+        private void btnListAll_Click(object sender, RoutedEventArgs e)
         {
-            TextBox tb = (TextBox)sender;
-            tb.Text = string.Empty;
-            tb.GotFocus -= txtBoxPreferredContact_GotFocus;
+            SecondWindow newWin = new SecondWindow(store);
+            newWin.Show();
+
         }
 
-       
+        //notices when a selection in the list box is changed and shows the customer info in the textboxes
+        private void listBoxCustomers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+
+            if (listBoxCustomers.SelectedItem == null)
+            {
+                return;
+            }
+
+            
+            
+                string listBoxInfo = listBoxCustomers.SelectedItem.ToString();
+
+                int id = Convert.ToInt32(listBoxInfo.Substring(0,5));
+
+                Customer a = store.find(id);
+
+                txtBoxID.Text = a.ID.ToString();
+                txtBoxFirstName.Text = a.FirstName;
+                txtBoxSurname.Text = a.SurName;
+                txtBoxEmail.Text = a.Email;
+                txtBoxSkypeID.Text = a.SkypeID;
+                txtBoxTelephone.Text = a.Telephone;
+                ComboboxPrefContact.Text = a.PreferredContact;
+            
+
+        }
     }
 }

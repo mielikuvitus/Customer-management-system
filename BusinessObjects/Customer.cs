@@ -3,7 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-//if(textBox1.Text == string.Empty || textBox2.Text == string.Empty) VALIDATION
+/*
+ *Suvi Helin (40325472)
+ * A blueprint for the customer object.
+ * Gets and sets ID, firstname, surname, emailaddress, skypeid, telephone and preferredcontact details
+ * Also has a method called PreferredContact which gets a customers preferred contact
+ * 18.10.2018
+ */
 
 namespace BusinessObjects
 {
@@ -102,25 +108,30 @@ namespace BusinessObjects
             }
         }
 
-        /* public string getPreferredContact()
+            
+         public string getPreferredContact()
             {
-            //string preferredContact = null;
-            //preferredContact = txtboxPreferredContact.Text;
+            
 
                 if (PreferredContact == "email")
                 {
-                    Console.WriteLine("Email: " + Email);
+                    string result = ("Email: " + Email);
+                    return result;
                 }
 
                 if (PreferredContact == "skype")
                 {
-                    Console.WriteLine("Skype: " + SkypeID);       
+                    string result =("Skype: " + SkypeID);
+                    return result;
                 }
 
-                if (PreferredContact == "telephone")
+                if (PreferredContact == "tel")
                 {
-                    Console.WriteLine("Tel: " + Telephone);
+                    string result = ("Tel: " + Telephone);
+                    return result;
                 }
-            }*/
+                return "";
+
+            }
     }
 }
